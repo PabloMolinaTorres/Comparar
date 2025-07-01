@@ -57,74 +57,76 @@
   <div id="comparisonContainer"></div>
 
   <script>
-    const uploadBox = document.getElementById('uploadBox');
-    const fileInput = document.getElementById('fileInput');
-
-    // Click en la caja abre selector
-    uploadBox.addEventListener('click', () => fileInput.click());
-
-    // Drop y drag
-    uploadBox.addEventListener('dragover', (e) => {
-      e.preventDefault();
-      uploadBox.style.background = '#eaffd0';
-    });
-
-    uploadBox.addEventListener('dragleave', () => {
-      uploadBox.style.background = 'white';
-    });
-
-    uploadBox.addEventListener('drop', (e) => {
-      e.preventDefault();
-      uploadBox.style.background = 'white';
-      handleFiles(e.dataTransfer.files);
-    });
-
-    // Cambio por input
-    fileInput.addEventListener('change', (e) => {
-      handleFiles(e.target.files);
-    });
-
-    function handleFiles(fileList) {
-      const files = Array.from(fileList);
-      const groups = {};
-
-      files.forEach(file => {
-        const match = file.name.match(/^(\d+)_\d+/);
-        if (match) {
-          const sku = match[1];
-          if (!groups[sku]) groups[sku] = [];
-          groups[sku].push(file);
-        }
-      });
-
+    document.addEventListener("DOMContentLoaded", () => {
+      const uploadBox = document.getElementById('uploadBox');
+      const fileInput = document.getElementById('fileInput');
       const container = document.getElementById('comparisonContainer');
-      container.innerHTML = '';
 
-      Object.entries(groups).forEach(([sku, groupFiles]) => {
-        if (groupFiles.length > 1) {
-          const groupDiv = document.createElement('div');
-          groupDiv.className = 'group';
+      // Click abre selector
+      uploadBox.addEventListener('click', () => fileInput.click());
 
-          const title = document.createElement('div');
-          title.className = 'group-title';
-          title.textContent = `Comparando SKU: ${sku}`;
-          groupDiv.appendChild(title);
-
-          const pairDiv = document.createElement('div');
-          pairDiv.className = 'pair';
-
-          groupFiles.forEach(file => {
-            const img = document.createElement('img');
-            img.src = URL.createObjectURL(file);
-            img.alt = file.name;
-            pairDiv.appendChild(img);
-          });
-
-          groupDiv.appendChild(pairDiv);
-          container.appendChild(groupDiv);
-        }
+      // Drag & Drop
+      uploadBox.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        uploadBox.style.background = '#eaffd0';
       });
-    }
+
+      uploadBox.addEventListener('dragleave', () => {
+        uploadBox.style.background = 'white';
+      });
+
+      uploadBox.addEventListener('drop', (e) => {
+        e.preventDefault();
+        uploadBox.style.background = 'white';
+        handleFiles(e.dataTransfer.files);
+      });
+
+      // Input directo
+      fileInput.addEventListener('change', (e) => {
+        handleFiles(e.target.files);
+      });
+
+      function handleFiles(fileList) {
+        const files = Array.from(fileList);
+        const groups = {};
+
+        files.forEach(file => {
+          const match = file.name.match(/^(\d+)_\d+/);
+          if (match) {
+            const sku = match[1];
+            if (!groups[sku]) groups[sku] = [];
+            groups[sku].push(file);
+          }
+        });
+
+        container.innerHTML = '';
+
+        Object.entries(groups).forEach(([sku, groupFiles]) => {
+          if (groupFiles.length > 1) {
+            const groupDiv = document.createElement('div');
+            groupDiv.className = 'group';
+
+            const title = document.createElement('div');
+            title.className = 'group-title';
+            title.textContent = `Comparando SKU: ${sku}`;
+            groupDiv.appendChild(title);
+
+            const pairDiv = document.createElement('div');
+            pairDiv.className = 'pair';
+
+            groupFiles.forEach(file => {
+              const img = document.createElement('img');
+              img.src = URL.createObjectURL(file);
+              img.alt = file.name;
+              pairDiv.appendChild(img);
+            });
+
+            groupDiv.appendChild(pairDiv);
+            container.appendChild(groupDiv);
+          }
+        });
+      }
+    });
   </script>
 </body>
 </html>
