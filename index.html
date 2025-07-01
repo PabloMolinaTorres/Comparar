@@ -37,6 +37,7 @@
       padding: 10px;
       box-sizing: border-box;
       text-align: center;
+      overflow: hidden; /* importante para el zoom */
     }
     .img-wrapper img {
       max-width: 100%;
@@ -44,6 +45,11 @@
       border: 1px solid #ddd;
       background: white;
       cursor: zoom-in;
+      transition: transform 0.3s ease;
+    }
+    .img-wrapper img:hover {
+      transform: scale(2.5);
+      z-index: 10;
     }
     .img-label {
       margin-top: 10px;
@@ -76,6 +82,9 @@
       border-radius: 5px;
       cursor: pointer;
     }
+    input[type="file"] {
+      display: none !important;
+    }
   </style>
 </head>
 <body>
@@ -83,7 +92,7 @@
   <div id="uploadBox" class="upload-box">
     📁 Suelta tus imágenes aquí (drag & drop)
   </div>
-  <input type="file" id="fileInput" multiple accept="image/*" style="display:none;">
+  <input type="file" id="fileInput" multiple accept="image/*">
   <div id="comparisonContainer"></div>
   <button id="exportButton">Exportar reporte</button>
 
@@ -92,15 +101,17 @@
     const fileInput = document.getElementById('fileInput');
     const container = document.getElementById('comparisonContainer');
     const exportButton = document.getElementById('exportButton');
-    const resultados = {}; // Guardamos decisiones
+    const resultados = {};
 
     uploadBox.addEventListener('dragover', e => {
       e.preventDefault();
       uploadBox.style.background = '#eaffd0';
     });
+
     uploadBox.addEventListener('dragleave', () => {
       uploadBox.style.background = 'white';
     });
+
     uploadBox.addEventListener('drop', e => {
       e.preventDefault();
       uploadBox.style.background = 'white';
