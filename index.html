@@ -45,18 +45,6 @@
       background: white;
       cursor: zoom-in;
     }
-    .magnifier {
-      display: none;
-      position: absolute;
-      width: 300px;
-      height: 300px;
-      border: 2px solid #8fca00;
-      background-repeat: no-repeat;
-      background-position: center;
-      background-size: 250%; /* zoom de 2.5x */
-      pointer-events: none;
-      z-index: 999;
-    }
     .img-label {
       margin-top: 10px;
       font-size: 14px;
@@ -156,22 +144,32 @@
       img.src = src;
       img.alt = label;
 
-      const magnifier = document.createElement('div');
-      magnifier.className = 'magnifier';
-
-      wrapper.appendChild(img);
-      wrapper.appendChild(magnifier);
-
       const caption = document.createElement('div');
       caption.className = 'img-label';
       caption.textContent = label;
+
+      wrapper.appendChild(img);
       wrapper.appendChild(caption);
 
-      img.onload = () => {
-        wrapper.addEventListener('mousemove', e => moveMagnifier(e, img, magnifier, wrapper));
-        wrapper.addEventListener('mouseenter', () => magnifier.style.display = 'block');
-        wrapper.addEventListener('mouseleave', () => magnifier.style.display = 'none');
-      };
+      // Lupa dinámica solo al entrar
+      img.addEventListener('mouseenter', () => {
+        const magnifier = document.createElement('div');
+        magnifier.style.position = 'absolute';
+        magnifier.style.border = '2px solid #8fca00';
+        magnifier.style.width = '300px';
+        magnifier.style.height = '300px';
+        magnifier.style.pointerEvents = 'none';
+        magnifier.style.backgroundRepeat = 'no-repeat';
+        magnifier.style.backgroundSize = '250%';
+        magnifier.style.zIndex = '999';
+        magnifier.style.boxShadow = '0 4px 8px rgba(0,0,0,0.2)';
+        wrapper.appendChild(magnifier);
+
+        wrapper.addEventListener('mousemove', e => moveMagnifier(e, img, magnifier));
+        wrapper.addEventListener('mouseleave', () => {
+          magnifier.remove();
+        });
+      });
 
       if (sku) {
         const controls = document.createElement('div');
@@ -229,7 +227,7 @@
       return wrapper;
     }
 
-    function moveMagnifier(e, img, magnifier, wrapper) {
+    function moveMagnifier(e, img, magnifier) {
       const rect = img.getBoundingClientRect();
       const x = e.clientX - rect.left;
       const y = e.clientY - rect.top;
