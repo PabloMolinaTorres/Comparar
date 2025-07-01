@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <title>Comparador Visual con Lupa Ampliada</title>
+  <title>Comparar</title> <!-- Título en la pestaña -->
   <style>
     body {
       font-family: sans-serif;
@@ -39,8 +39,8 @@
       position: relative;
     }
     .img-wrapper img {
-      width: 120%; /* Imagen trasera más grande */
-      max-height: 480px;
+      max-width: 100%;
+      max-height: 400px;
       border: 1px solid #ddd;
       padding: 4px;
       background: white;
@@ -54,7 +54,7 @@
     .magnifier {
       display: none;
       position: absolute;
-      width: 325px;  /* 30% más que 250px */
+      width: 325px;
       height: 325px;
       background-repeat: no-repeat;
       background-position: center;
@@ -64,12 +64,15 @@
       pointer-events: none;
       z-index: 999;
     }
+    input[type="file"] {
+      display: none !important; /* Oculta completamente */
+    }
   </style>
 </head>
 <body>
-  <h1>Comparador Visual con Lupa Ampliada</h1>
+  <h1>Comparador Visual</h1> <!-- Título en la página -->
   <div id="uploadBox" class="upload-box">
-    📁 Suelta tus imágenes aquí o haz clic para seleccionarlas
+    📁 Suelta tus imágenes aquí (drag & drop)
   </div>
   <input type="file" id="fileInput" multiple accept="image/*">
   <div id="comparisonContainer"></div>
@@ -79,7 +82,7 @@
     const fileInput = document.getElementById('fileInput');
     const container = document.getElementById('comparisonContainer');
 
-    uploadBox.addEventListener('click', () => fileInput.click());
+    // Solo arrastrar archivos: input invisible, pero funcional por si se activa por código
     uploadBox.addEventListener('dragover', e => {
       e.preventDefault();
       uploadBox.style.background = '#eaffd0';
@@ -91,9 +94,6 @@
       e.preventDefault();
       uploadBox.style.background = 'white';
       handleFiles(e.dataTransfer.files);
-    });
-    fileInput.addEventListener('change', e => {
-      handleFiles(e.target.files);
     });
 
     function handleFiles(fileList) {
