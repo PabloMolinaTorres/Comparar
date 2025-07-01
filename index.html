@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <title>Comparador Visual SKU</title>
+  <title>Comparador Visual SKU con Lupa</title>
   <style>
     body {
       font-family: sans-serif;
@@ -36,7 +36,6 @@
     .img-wrapper {
       flex: 1;
       text-align: center;
-      overflow: hidden;
       position: relative;
     }
     .img-wrapper img {
@@ -45,27 +44,37 @@
       border: 1px solid #ddd;
       padding: 4px;
       background: white;
-      transition: transform 0.3s ease;
-      cursor: zoom-in;
-      position: relative;
-      z-index: 1;
-    }
-    .img-wrapper:hover img {
-      transform: scale(1.8);
-      z-index: 10;
     }
     .img-label {
       margin-top: 10px;
       font-size: 14px;
       color: #666;
     }
-    input[type="file"] {
+    .zoom-lens {
+      position: absolute;
+      border: 2px solid #8fca00;
+      width: 100px;
+      height: 100px;
+      opacity: 0.4;
+      background: rgba(255,255,255,0.5);
+      pointer-events: none;
+    }
+    .zoom-result {
+      position: absolute;
+      top: 0;
+      left: 105%;
+      width: 400px;
+      height: 400px;
+      border: 1px solid #ccc;
+      background-repeat: no-repeat;
+      background-size: 200%;
       display: none;
+      z-index: 999;
     }
   </style>
 </head>
 <body>
-  <h1>Comparador Visual por SKU</h1>
+  <h1>Comparador Visual por SKU con lupa</h1>
   <div id="uploadBox" class="upload-box">
     📁 Suelta tus imágenes aquí o haz clic para seleccionarlas
   </div>
@@ -78,22 +87,18 @@
     const container = document.getElementById('comparisonContainer');
 
     uploadBox.addEventListener('click', () => fileInput.click());
-
     uploadBox.addEventListener('dragover', e => {
       e.preventDefault();
       uploadBox.style.background = '#eaffd0';
     });
-
     uploadBox.addEventListener('dragleave', () => {
       uploadBox.style.background = 'white';
     });
-
     uploadBox.addEventListener('drop', e => {
       e.preventDefault();
       uploadBox.style.background = 'white';
       handleFiles(e.dataTransfer.files);
     });
-
     fileInput.addEventListener('change', e => {
       handleFiles(e.target.files);
     });
@@ -112,34 +117,85 @@
         const pairDiv = document.createElement('div');
         pairDiv.className = 'pair';
 
-        // Imagen remota (izquierda)
-        const leftDiv = document.createElement('div');
-        leftDiv.className = 'img-wrapper';
-        const leftImg = document.createElement('img');
-        leftImg.src = remoteUrl;
-        leftImg.alt = `Remota SKU ${sku}`;
-        const leftLabel = document.createElement('div');
-        leftLabel.className = 'img-label';
-        leftLabel.textContent = `Imagen original SKU: ${sku}`;
-        leftDiv.appendChild(leftImg);
-        leftDiv.appendChild(leftLabel);
-
-        // Imagen local (derecha)
-        const rightDiv = document.createElement('div');
-        rightDiv.className = 'img-wrapper';
-        const rightImg = document.createElement('img');
-        rightImg.src = URL.createObjectURL(file);
-        rightImg.alt = `Cargada: ${file.name}`;
-        const rightLabel = document.createElement('div');
-        rightLabel.className = 'img-label';
-        rightLabel.textContent = `Tu imagen: ${file.name}`;
-        rightDiv.appendChild(rightImg);
-        rightDiv.appendChild(rightLabel);
+        // Remota
+        const leftDiv = createZoomableImage(remoteUrl, `Imagen original SKU: ${sku}`);
+        // Local
+        const localURL = URL.createObjectURL(file);
+        const rightDiv = createZoomableImage(localURL, `Tu imagen: ${file.name}`);
 
         pairDiv.appendChild(leftDiv);
         pairDiv.appendChild(rightDiv);
         container.appendChild(pairDiv);
       });
+    }
+
+    function createZoomableImage(src, label) {
+      const wrapper = document.createElement('div');
+      wrapper.className = 'img-wrapper';
+
+      const img = document.createElement('img');
+      img.src = src;
+      img.alt = label;
+
+      const lens = document.createElement('div');
+      lens.className = 'zoom-lens';
+
+      const zoomResult = document.createElement('div');
+      zoomResult.className = 'zoom-result';
+
+      wrapper.appendChild(img);
+      wrapper.appendChild(lens);
+      wrapper.appendChild(zoomResult);
+
+      const caption = document.createElement('div');
+      caption.className = 'img-label';
+      caption.textContent = label;
+      wrapper.appendChild(caption);
+
+      img.onload = () => {
+        lens.style.display = 'none';
+        zoomResult.style.display = 'none';
+
+        wrapper.addEventListener('mousemove', e => moveLens(e, img, lens, zoomResult));
+        wrapper.addEventListener('mouseenter', () => {
+          lens.style.display = 'block';
+          zoomResult.style.display = 'block';
+        });
+        wrapper.addEventListener('mouseleave', () => {
+          lens.style.display = 'none';
+          zoomResult.style.display = 'none';
+        });
+      };
+
+      return wrapper;
+    }
+
+    function moveLens(e, img, lens, result) {
+      const pos = getCursorPos(e, img);
+      const cx = result.offsetWidth / lens.offsetWidth;
+      const cy = result.offsetHeight / lens.offsetHeight;
+
+      let x = pos.x - lens.offsetWidth / 2;
+      let y = pos.y - lens.offsetHeight / 2;
+
+      if (x > img.width - lens.offsetWidth) x = img.width - lens.offsetWidth;
+      if (x < 0) x = 0;
+      if (y > img.height - lens.offsetHeight) y = img.height - lens.offsetHeight;
+      if (y < 0) y = 0;
+
+      lens.style.left = x + "px";
+      lens.style.top = y + "px";
+
+      result.style.backgroundImage = `url('${img.src}')`;
+      result.style.backgroundPosition = `-${x * cx}px -${y * cy}px`;
+      result.style.backgroundSize = `${img.width * cx}px ${img.height * cy}px`;
+    }
+
+    function getCursorPos(e, img) {
+      const rect = img.getBoundingClientRect();
+      const x = e.pageX - rect.left - window.scrollX;
+      const y = e.pageY - rect.top - window.scrollY;
+      return { x, y };
     }
   </script>
 </body>
