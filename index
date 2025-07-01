@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <title>Comparador de Imágenes por SKU</title>
+  <title>Comparar</title>
   <style>
     body {
       font-family: sans-serif;
@@ -10,13 +10,23 @@
       background: #fafafa;
     }
     h1 {
-      margin-bottom: 10px;
-    }
-    input[type="file"] {
       margin-bottom: 20px;
     }
+    .upload-box {
+      border: 2px dashed #8fca00;
+      border-radius: 10px;
+      background: white;
+      color: #444;
+      padding: 40px;
+      text-align: center;
+      cursor: pointer;
+      transition: background 0.2s ease;
+    }
+    .upload-box:hover {
+      background: #f0fbe0;
+    }
     .group {
-      margin-bottom: 30px;
+      margin-top: 40px;
       border-top: 1px solid #ccc;
       padding-top: 20px;
     }
@@ -39,14 +49,43 @@
   </style>
 </head>
 <body>
-  <h1>Comparador de Imágenes por SKU</h1>
-  <p>Sube tus imágenes con nombres como <strong>123456_1.jpg</strong>, <strong>123456_2.jpg</strong></p>
-  <input type="file" id="fileInput" multiple accept="image/*">
+  <h1>Comparar imágenes por SKU</h1>
+  <div id="uploadBox" class="upload-box">
+    📁 Suelta tus imágenes aquí o haz clic para seleccionarlas
+  </div>
+  <input type="file" id="fileInput" multiple accept="image/*" style="display:none;">
   <div id="comparisonContainer"></div>
 
   <script>
-    document.getElementById('fileInput').addEventListener('change', function(e) {
-      const files = Array.from(e.target.files);
+    const uploadBox = document.getElementById('uploadBox');
+    const fileInput = document.getElementById('fileInput');
+
+    // Click en la caja abre selector
+    uploadBox.addEventListener('click', () => fileInput.click());
+
+    // Drop y drag
+    uploadBox.addEventListener('dragover', (e) => {
+      e.preventDefault();
+      uploadBox.style.background = '#eaffd0';
+    });
+
+    uploadBox.addEventListener('dragleave', () => {
+      uploadBox.style.background = 'white';
+    });
+
+    uploadBox.addEventListener('drop', (e) => {
+      e.preventDefault();
+      uploadBox.style.background = 'white';
+      handleFiles(e.dataTransfer.files);
+    });
+
+    // Cambio por input
+    fileInput.addEventListener('change', (e) => {
+      handleFiles(e.target.files);
+    });
+
+    function handleFiles(fileList) {
+      const files = Array.from(fileList);
       const groups = {};
 
       files.forEach(file => {
@@ -85,8 +124,7 @@
           container.appendChild(groupDiv);
         }
       });
-    });
+    }
   </script>
 </body>
 </html>
-
