@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <title>Comparador Visual con Lupa Popup</title>
+  <title>Comparador Visual con Lupa Cuadrada</title>
   <style>
     body {
       font-family: sans-serif;
@@ -44,6 +44,7 @@
       border: 1px solid #ddd;
       padding: 4px;
       background: white;
+      cursor: zoom-in;
     }
     .img-label {
       margin-top: 10px;
@@ -53,20 +54,20 @@
     .magnifier {
       display: none;
       position: absolute;
-      border: 2px solid #8fca00;
-      border-radius: 50%;
-      width: 150px;
-      height: 150px;
+      width: 250px;
+      height: 250px;
       background-repeat: no-repeat;
       background-position: center;
       background-size: 200%;
+      border: 2px solid #8fca00;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.2);
       pointer-events: none;
       z-index: 999;
     }
   </style>
 </head>
 <body>
-  <h1>Comparador Visual con Lupa Popup</h1>
+  <h1>Comparador Visual con Lupa</h1>
   <div id="uploadBox" class="upload-box">
     📁 Suelta tus imágenes aquí o haz clic para seleccionarlas
   </div>
@@ -139,7 +140,7 @@
       wrapper.appendChild(caption);
 
       img.onload = () => {
-        wrapper.addEventListener('mousemove', e => moveMagnifier(e, img, magnifier));
+        wrapper.addEventListener('mousemove', e => moveMagnifier(e, img, magnifier, wrapper));
         wrapper.addEventListener('mouseenter', () => magnifier.style.display = 'block');
         wrapper.addEventListener('mouseleave', () => magnifier.style.display = 'none');
       };
@@ -147,20 +148,29 @@
       return wrapper;
     }
 
-    function moveMagnifier(e, img, magnifier) {
+    function moveMagnifier(e, img, magnifier, wrapper) {
       const rect = img.getBoundingClientRect();
+      const wrapperRect = wrapper.getBoundingClientRect();
       const x = e.clientX - rect.left;
       const y = e.clientY - rect.top;
 
       const zoom = 2; // nivel de zoom
 
       // posicionar la lupa
-      magnifier.style.left = `${x - magnifier.offsetWidth / 2}px`;
-      magnifier.style.top = `${y - magnifier.offsetHeight / 2}px`;
+      const magnifierSize = 250;
+      let posX = x - magnifierSize / 2;
+      let posY = y - magnifierSize / 2;
+
+      // mantener dentro del contenedor
+      posX = Math.max(0, Math.min(posX, img.width - magnifierSize));
+      posY = Math.max(0, Math.min(posY, img.height - magnifierSize));
+
+      magnifier.style.left = `${posX}px`;
+      magnifier.style.top = `${posY}px`;
 
       magnifier.style.backgroundImage = `url('${img.src}')`;
       magnifier.style.backgroundSize = `${img.width * zoom}px ${img.height * zoom}px`;
-      magnifier.style.backgroundPosition = `-${x * zoom - magnifier.offsetWidth / 2}px -${y * zoom - magnifier.offsetHeight / 2}px`;
+      magnifier.style.backgroundPosition = `-${x * zoom - magnifierSize / 2}px -${y * zoom - magnifierSize / 2}px`;
     }
   </script>
 </body>
