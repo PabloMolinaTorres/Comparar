@@ -1,1 +1,92 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Comparador de Imágenes por SKU</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      padding: 40px;
+      background: #fafafa;
+    }
+    h1 {
+      margin-bottom: 10px;
+    }
+    input[type="file"] {
+      margin-bottom: 20px;
+    }
+    .group {
+      margin-bottom: 30px;
+      border-top: 1px solid #ccc;
+      padding-top: 20px;
+    }
+    .group-title {
+      font-weight: bold;
+      margin-bottom: 10px;
+    }
+    .pair {
+      display: flex;
+      gap: 15px;
+      flex-wrap: wrap;
+    }
+    .pair img {
+      width: 300px;
+      max-width: 100%;
+      border: 1px solid #ddd;
+      padding: 5px;
+      background: white;
+    }
+  </style>
+</head>
+<body>
+  <h1>Comparador de Imágenes por SKU</h1>
+  <p>Sube tus imágenes con nombres como <strong>123456_1.jpg</strong>, <strong>123456_2.jpg</strong></p>
+  <input type="file" id="fileInput" multiple accept="image/*">
+  <div id="comparisonContainer"></div>
+
+  <script>
+    document.getElementById('fileInput').addEventListener('change', function(e) {
+      const files = Array.from(e.target.files);
+      const groups = {};
+
+      files.forEach(file => {
+        const match = file.name.match(/^(\d+)_\d+/);
+        if (match) {
+          const sku = match[1];
+          if (!groups[sku]) groups[sku] = [];
+          groups[sku].push(file);
+        }
+      });
+
+      const container = document.getElementById('comparisonContainer');
+      container.innerHTML = '';
+
+      Object.entries(groups).forEach(([sku, groupFiles]) => {
+        if (groupFiles.length > 1) {
+          const groupDiv = document.createElement('div');
+          groupDiv.className = 'group';
+
+          const title = document.createElement('div');
+          title.className = 'group-title';
+          title.textContent = `Comparando SKU: ${sku}`;
+          groupDiv.appendChild(title);
+
+          const pairDiv = document.createElement('div');
+          pairDiv.className = 'pair';
+
+          groupFiles.forEach(file => {
+            const img = document.createElement('img');
+            img.src = URL.createObjectURL(file);
+            img.alt = file.name;
+            pairDiv.appendChild(img);
+          });
+
+          groupDiv.appendChild(pairDiv);
+          container.appendChild(groupDiv);
+        }
+      });
+    });
+  </script>
+</body>
+</html>
 
