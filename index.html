@@ -36,6 +36,8 @@
     .img-wrapper {
       flex: 1;
       text-align: center;
+      overflow: hidden;
+      position: relative;
     }
     .img-wrapper img {
       max-width: 100%;
@@ -45,10 +47,12 @@
       background: white;
       transition: transform 0.3s ease;
       cursor: zoom-in;
+      position: relative;
+      z-index: 1;
     }
-    .img-wrapper img:hover {
-      transform: scale(1.5);
-      z-index: 100;
+    .img-wrapper:hover img {
+      transform: scale(1.8);
+      z-index: 10;
     }
     .img-label {
       margin-top: 10px;
