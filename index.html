@@ -37,7 +37,6 @@
       padding: 10px;
       box-sizing: border-box;
       text-align: center;
-      overflow: hidden; /* importante para el zoom */
     }
     .img-wrapper img {
       max-width: 100%;
@@ -45,11 +44,18 @@
       border: 1px solid #ddd;
       background: white;
       cursor: zoom-in;
-      transition: transform 0.3s ease;
     }
-    .img-wrapper img:hover {
-      transform: scale(2.5);
-      z-index: 10;
+    .magnifier {
+      display: none;
+      position: absolute;
+      width: 300px;
+      height: 300px;
+      border: 2px solid #8fca00;
+      background-repeat: no-repeat;
+      background-position: center;
+      background-size: 250%; /* zoom de 2.5x */
+      pointer-events: none;
+      z-index: 999;
     }
     .img-label {
       margin-top: 10px;
@@ -132,9 +138,9 @@
         const pairDiv = document.createElement('div');
         pairDiv.className = 'pair';
 
-        const leftDiv = createImageBlock(remoteUrl, `Imagen original SKU: ${sku}`);
+        const leftDiv = createZoomableImage(remoteUrl, `Imagen original SKU: ${sku}`);
         const localURL = URL.createObjectURL(file);
-        const rightDiv = createImageBlock(localURL, `Tu imagen: ${file.name}`, sku);
+        const rightDiv = createZoomableImage(localURL, `Tu imagen: ${file.name}`, sku);
 
         pairDiv.appendChild(leftDiv);
         pairDiv.appendChild(rightDiv);
@@ -142,7 +148,7 @@
       });
     }
 
-    function createImageBlock(src, label, sku = null) {
+    function createZoomableImage(src, label, sku = null) {
       const wrapper = document.createElement('div');
       wrapper.className = 'img-wrapper';
 
@@ -150,12 +156,22 @@
       img.src = src;
       img.alt = label;
 
+      const magnifier = document.createElement('div');
+      magnifier.className = 'magnifier';
+
+      wrapper.appendChild(img);
+      wrapper.appendChild(magnifier);
+
       const caption = document.createElement('div');
       caption.className = 'img-label';
       caption.textContent = label;
-
-      wrapper.appendChild(img);
       wrapper.appendChild(caption);
+
+      img.onload = () => {
+        wrapper.addEventListener('mousemove', e => moveMagnifier(e, img, magnifier, wrapper));
+        wrapper.addEventListener('mouseenter', () => magnifier.style.display = 'block');
+        wrapper.addEventListener('mouseleave', () => magnifier.style.display = 'none');
+      };
 
       if (sku) {
         const controls = document.createElement('div');
@@ -211,6 +227,23 @@
       }
 
       return wrapper;
+    }
+
+    function moveMagnifier(e, img, magnifier, wrapper) {
+      const rect = img.getBoundingClientRect();
+      const x = e.clientX - rect.left;
+      const y = e.clientY - rect.top;
+      const zoom = 2.5;
+      const size = 300;
+
+      let posX = x - size / 2;
+      let posY = y - size / 2;
+
+      magnifier.style.left = `${posX}px`;
+      magnifier.style.top = `${posY}px`;
+      magnifier.style.backgroundImage = `url('${img.src}')`;
+      magnifier.style.backgroundSize = `${img.width * zoom}px ${img.height * zoom}px`;
+      magnifier.style.backgroundPosition = `-${x * zoom - size / 2}px -${y * zoom - size / 2}px`;
     }
 
     exportButton.addEventListener('click', () => {
