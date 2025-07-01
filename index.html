@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <title>Comparador Visual con Lupa Cuadrada</title>
+  <title>Comparador Visual con Lupa Ampliada</title>
   <style>
     body {
       font-family: sans-serif;
@@ -39,8 +39,8 @@
       position: relative;
     }
     .img-wrapper img {
-      max-width: 100%;
-      max-height: 400px;
+      width: 120%; /* Imagen trasera más grande */
+      max-height: 480px;
       border: 1px solid #ddd;
       padding: 4px;
       background: white;
@@ -54,8 +54,8 @@
     .magnifier {
       display: none;
       position: absolute;
-      width: 250px;
-      height: 250px;
+      width: 325px;  /* 30% más que 250px */
+      height: 325px;
       background-repeat: no-repeat;
       background-position: center;
       background-size: 200%;
@@ -67,7 +67,7 @@
   </style>
 </head>
 <body>
-  <h1>Comparador Visual con Lupa</h1>
+  <h1>Comparador Visual con Lupa Ampliada</h1>
   <div id="uploadBox" class="upload-box">
     📁 Suelta tus imágenes aquí o haz clic para seleccionarlas
   </div>
@@ -154,14 +154,12 @@
       const x = e.clientX - rect.left;
       const y = e.clientY - rect.top;
 
-      const zoom = 2; // nivel de zoom
+      const zoom = 2;
+      const magnifierSize = 325;
 
-      // posicionar la lupa
-      const magnifierSize = 250;
       let posX = x - magnifierSize / 2;
       let posY = y - magnifierSize / 2;
 
-      // mantener dentro del contenedor
       posX = Math.max(0, Math.min(posX, img.width - magnifierSize));
       posY = Math.max(0, Math.min(posY, img.height - magnifierSize));
 
